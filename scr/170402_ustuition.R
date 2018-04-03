@@ -34,7 +34,12 @@ df_tuition_tidy %>%
 # boxplot of tuituon in time 
 df_tuition_tidy %>% 
   ggplot(aes(x = factor(year), y = avg_tuition)) + 
-  geom_boxplot()
+  geom_boxplot() + 
+  ylab("Tuition (avg)") + 
+  xlab("Year") + 
+  ggtitle("Average tuition in time")
+ggsave("graphs/170402_ustuition_01boxplot.pdf", width = 7, height = 5)
+
 
 # difference of tuition per annual average
 tab_gg <- df_tuition_tidy %>% 
@@ -73,7 +78,7 @@ tab_gg %>%
   scale_fill_continuous(low = "#0000FF", high = "#FFFF00") + 
   guides(fill = guide_legend("Difference")) +
   ggtitle("State Tuition (avg) - National Tuition (avg)")
-
+ggsave("graphs/170402_ustuition_02heatmap.pdf", width = 7, height = 8)
 
 # plot of special states
 tab_gg %>% 
@@ -97,3 +102,4 @@ tab_gg %>%
   theme(legend.position = "none") + 
   ggtitle("Tuition per State") +
   ylab( "State Tuition (avg) - National Tuition (avg)")
+ggsave("graphs/170402_ustuition_03trends.pdf", width = 8, height = 6)
