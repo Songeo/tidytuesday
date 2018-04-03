@@ -38,7 +38,7 @@ df_tuition_tidy %>%
   ylab("Tuition (avg)") + 
   xlab("Year") + 
   ggtitle("Average tuition in time", 
-          "Tuition always go up")
+          "Prices always go up")
 ggsave("graphs/170402_ustuition_01boxplot.png", width = 7, height = 5)
 
 
