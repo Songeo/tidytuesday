@@ -8,13 +8,12 @@ library(sp)
 
 theme_set(theme_bw())
 
-# 1. Datos ----
+# Datos ----
 df_coffee_raw <- readxl::read_xlsx("data/week6_coffee_chains.xlsx")
 df_coffee_raw %>% 
   data.frame %>% head
 df_coffee_raw %>%  summary()
 filter(df_coffee_raw, is.na(Longitude))
-
 
 df_coffee_raw %>% 
   group_by(Brand) %>% 
@@ -22,7 +21,8 @@ df_coffee_raw %>%
             n_obs = n())
 df_coffee_raw$`Ownership Type` %>% table
 
-# maps
+
+# World map ----
 map_wd <- map_data("world") 
 map_wd %>% head
 
@@ -38,7 +38,7 @@ ggplot() +
   facet_wrap(~Brand)
 
 
-# Mexico
+# Mexico ----
 map_mex <- map_wd %>% 
   filter(region == "Mexico")
 
@@ -65,7 +65,7 @@ df_coffee_raw_mx %>%
   tally() 
 
 
-# Shape files
+# Shape files Mexico por estado ----
 dir("src/mex_edos_shapes")
 shp_edo_rgdal <-  rgdal::readOGR("src/mex_edos_shapes/Mex_Edos.shp") %>% 
   sp::merge(read_csv("src/180507_mex_states.csv"), 
@@ -84,6 +84,9 @@ tm_shape(shp_edo_rgdal) +
   tm_borders() 
 
 
+
+
+# Script adicional
 {
 # # function to obtain US county shape
 # # https://github.com/mtennekes/tmap/blob/master/demo/USChoropleth/US_choropleth.R
