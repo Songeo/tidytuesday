@@ -4,8 +4,6 @@ library(tidyverse)
 library(maps)
 library(tmap)
 library(sp)
-# library(tmaptools)
-
 theme_set(theme_bw())
 
 # Datos ----
@@ -25,20 +23,21 @@ df_coffee_raw$`Ownership Type` %>% table
 # World map ----
 map_wd <- map_data("world") 
 map_wd %>% head
-
-ggplot() + 
+gg <- ggplot() + 
   geom_polygon(data = map_wd, 
                aes(x=long, y = lat, group = group), 
-               fill = "white") + 
+               fill = "mistyrose") + 
   geom_point(data = df_coffee_raw, 
              aes(x = Longitude, y = Latitude, 
                  color = Brand), 
              alpha = .3) + 
   coord_fixed(1.3) + 
   facet_wrap(~Brand)
-
+ggsave(plot = gg, filename = "graphs/180507_worldmap.png", 
+       width = 12, height = 8)
 
 # Mexico ----
+# Just mapping Mexico (my home)
 map_mex <- map_wd %>% 
   filter(region == "Mexico")
 
@@ -48,7 +47,8 @@ df_coffee_raw_mx <- df_coffee_raw %>%
 df_coffee_raw_mx$`City` %>% unique()
 df_coffee_raw_mx$`State/Province` %>% unique()
 
-ggplot() + 
+# mapping with ggplot
+gg <- ggplot() + 
   geom_polygon(data = map_mex, 
                aes(x=long, y = lat, group = group), 
                fill = "gray80") + 
@@ -59,6 +59,8 @@ ggplot() +
   theme(legend.position = "none") + 
   coord_fixed(1.3) + 
   facet_wrap(~Brand)
+ggsave(gg, filename = "graphs/180507_ggplot_mex.png", 
+       width = 10, height = 7)
 
 df_coffee_raw_mx %>% 
   group_by(`State/Province`) %>% 
@@ -66,6 +68,9 @@ df_coffee_raw_mx %>%
 
 
 # Shape files Mexico por estado ----
+# Mapping with tmap, very similar to ggplot
+
+# Shape files from mexico by state
 dir("src/mex_edos_shapes")
 shp_edo_rgdal <-  rgdal::readOGR("src/mex_edos_shapes/Mex_Edos.shp") %>% 
   sp::merge(read_csv("src/180507_mex_states.csv"), 
@@ -74,14 +79,31 @@ shp_edo_rgdal <-  rgdal::readOGR("src/mex_edos_shapes/Mex_Edos.shp") %>%
               group_by(`State/Province`) %>% 
               summarise(`num tiendas` = n()) )
 
+# DF Polygone
 class(shp_edo_rgdal)
 shp_edo_rgdal@data %>% head()
 shp_edo_rgdal@data %>% summary()
 
-
+# Map polygons and bubles
 tm_shape(shp_edo_rgdal) + 
-  tm_bubbles(size = "num tiendas") + 
-  tm_borders() 
+  tm_fill(col = "num tiendas", 
+          palette = "RdYlBu", 
+          title = "Number stores in MEX",
+          style="fixed",
+          breaks=c(-Inf, 0, 1, 10, 
+                   50, 100, 250, Inf),
+          contrast=.7) + 
+  tm_bubbles(size = "num tiendas",
+             col = "red",
+             title.size="Number of stores", 
+             alpha = .3,
+             contrast = 1) + 
+  tm_borders() + 
+  tm_text("State/Province", col = "gray40") +
+  tm_style_gray() + 
+  tm_format_World()
+save_tmap(filename = "graphs/180507_tmap_mex.png", 
+          width = 10, height = 7)
 
 
 
